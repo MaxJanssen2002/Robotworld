@@ -10,6 +10,16 @@
 
 namespace Model
 {
+	enum Scenarios
+	{
+		S1_1,
+		S1_2,
+		S2_1,
+		S2_2,
+		S3_1,
+		S3_2
+	};
+
 	class Robot;
 	typedef std::shared_ptr<Robot> RobotPtr;
 
@@ -131,6 +141,10 @@ namespace Model
 			 *
 			 */
 			void unpopulate( bool aNotifyObservers = true);
+			/**
+			 *
+			 */
+			void createScenario( Scenarios scenarioNumber);
 			/**
 			 *
 			 */

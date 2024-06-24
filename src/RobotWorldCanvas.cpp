@@ -453,6 +453,13 @@ namespace View
 		shapes.clear();
 		Model::RobotWorld::getRobotWorld().unpopulate();
 	}
+	/**
+	 *
+	 */
+	void RobotWorldCanvas::createScenario(Model::Scenarios scenarioNumber)
+	{
+		Model::RobotWorld::getRobotWorld().createScenario(scenarioNumber);
+	}
 
 	/**
 	 *

@@ -255,7 +255,10 @@ namespace Model
 			// The start point of this run
 			wxPoint startPosition;
 			//@}
-
+			std::vector<int> getNumbersFromString(std::string stringWithNumbers);
+			void syncGoals(std::string& goalString);
+			void syncWalls(std::string& wallString);
+			std::string getWorldInfo();
 		protected:
 			/**
 			 *
@@ -273,6 +276,10 @@ namespace Model
 			 *
 			 */
 			bool collision();
+			/**
+			*
+			 */
+
 		private:
 			/**
 			 *

@@ -372,6 +372,53 @@ namespace Model
 			notifyObservers();
 		}
 	}
+	/**
+	 *
+	 */
+	void RobotWorld::createScenario( Scenarios scenarioNumber)
+	{
+		switch(scenarioNumber)
+		{
+			case S1_1:
+				Application::Logger::log("Scenario 1.1");
+				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(100, 100), false);
+				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(450, 450), false);
+				break;
+			case S1_2:
+				Application::Logger::log("Scenario 1.2");
+				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(400, 400), false);
+				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(50, 50), false);
+				break;
+			case S2_1:
+				Application::Logger::log("Scenario 2.1");
+				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(50, 50), false);
+				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(450, 450), false);
+				break;
+			case S2_2:
+				Application::Logger::log("Scenario 2.2");
+				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(450, 50), false);
+				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(50, 450), false);
+				break;
+			case S3_1:
+				Application::Logger::log("Scenario 3.1");
+				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(100, 100), false);
+				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(450, 450), false);
+				RobotWorld::getRobotWorld().newWall( wxPoint(0, 160), wxPoint(300, 160),false);
+				break;
+			case S3_2:
+				Application::Logger::log("Scenario 3.2");
+				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(400, 400), false);
+				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(50, 50), false);
+				RobotWorld::getRobotWorld().newWall( wxPoint(200, 340), wxPoint(500, 340),false);
+				break;
+			default:
+				break;
+		}
+		notifyObservers();
+	}
+	/**
+	 *
+	 */
 	std::string RobotWorld::asCode() const
 	{
 		std::ostringstream os;

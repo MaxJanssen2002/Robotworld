@@ -20,7 +20,9 @@ namespace Messaging
 		GenericRequest,
 		GenericResponse,
 		EchoRequest,
-		EchoResponse
+		EchoResponse,
+		SyncWorldRequest,
+		SyncWorldResponse,
 	};
 	//@}
 } /* namespace Messaging */

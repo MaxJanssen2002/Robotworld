@@ -4,6 +4,7 @@
 #include "Config.hpp"
 
 #include "Widgets.hpp"
+#include "RobotWorldCanvas.hpp"
 
 namespace Base
 {
@@ -17,6 +18,7 @@ namespace View
 
 namespace Application
 {
+
 	class LogTextCtrl;
 
 	/**
@@ -112,6 +114,7 @@ namespace Application
 			void OnSendMessage( wxCommandEvent& anEvent);
 			void OnStopListening( wxCommandEvent& anEvent);
 			void OnSyncWorlds( wxCommandEvent& anEvent);
+			void OnScenario( wxCommandEvent& anEvent, Model::Scenarios scenarioNumber);
 
 			/**
 			 * Draws the grid for the given panel. Useful for debugging the layout of the grid.

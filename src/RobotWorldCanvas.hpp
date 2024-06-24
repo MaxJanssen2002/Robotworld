@@ -13,6 +13,7 @@
 
 namespace View
 {
+
 	class Shape;
 	typedef std::shared_ptr<Shape> ShapePtr;
 	class RobotShape;
@@ -170,6 +171,10 @@ namespace View
 			 * Removes everything from the world
 			 */
 			void unpopulate();
+			/**
+			 * Puts the robots, goals and walls for a specific scenario in the world
+			 */
+			void createScenario(Model::Scenarios scenarioNumber);
 		protected:
 			/**
 			 * Common initialise function

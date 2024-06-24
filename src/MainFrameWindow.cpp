@@ -14,7 +14,6 @@
 #include "Robot.hpp"
 #include "RobotShape.hpp"
 #include "RobotWorld.hpp"
-#include "RobotWorldCanvas.hpp"
 #include "Shape2DUtils.hpp"
 #include "StdOutTraceFunction.hpp"
 #include "Trace.hpp"
@@ -503,37 +502,37 @@ namespace Application
 					wxGROW);
 		sizer->Add( makeButton( panel,
 								"Scenario 1.1",
-								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+								[this](wxCommandEvent& anEvent){this->OnScenario(anEvent, Model::S1_1);}),
 					wxGBPosition( 6, 1),
 					wxGBSpan( 1, 1),
 					wxGROW);
 		sizer->Add( makeButton( panel,
 								"Scenario 1.2",
-								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+								[this](wxCommandEvent& anEvent){this->OnScenario(anEvent, Model::S1_2);}),
 					wxGBPosition( 7, 1),
 					wxGBSpan( 1, 1),
 					wxGROW);
 		sizer->Add( makeButton( panel,
 								"Scenario 2.1",
-								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+								[this](wxCommandEvent& anEvent){this->OnScenario(anEvent, Model::S2_1);}),
 					wxGBPosition( 6, 2),
 					wxGBSpan( 1, 1),
 					wxGROW);
 		sizer->Add( makeButton( panel,
 								"Scenario 2.2",
-								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+								[this](wxCommandEvent& anEvent){this->OnScenario(anEvent, Model::S2_2);}),
 					wxGBPosition( 7, 2),
 					wxGBSpan( 1, 1),
 					wxGROW);
 		sizer->Add( makeButton( panel,
 								"Scenario 3.1",
-								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+								[this](wxCommandEvent& anEvent){this->OnScenario(anEvent, Model::S3_1);}),
 					wxGBPosition( 6, 3),
 					wxGBSpan( 1, 1),
 					wxGROW);
 		sizer->Add( makeButton( panel,
 								"Scenario 3.2",
-								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+								[this](wxCommandEvent& anEvent){this->OnScenario(anEvent, Model::S3_2);}),
 					wxGBPosition( 7, 3),
 					wxGBSpan( 1, 1),
 					wxGROW);
@@ -806,6 +805,13 @@ namespace Application
 		{
 			robot->sendWorldInfo();
 		}
+	}
+	/**
+	 *
+	 */
+	void MainFrameWindow::OnScenario( wxCommandEvent& UNUSEDPARAM(anEvent), Model::Scenarios scenarioNumber)
+	{
+		robotWorldCanvas->createScenario(scenarioNumber);
 	}
 	/**
 	 *

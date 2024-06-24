@@ -18,6 +18,11 @@
 #include <ctime>
 #include <sstream>
 #include <thread>
+#include <algorithm>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <regex>
 
 namespace Model
 {
@@ -237,21 +242,7 @@ namespace Model
 	/**
 	 *
 	 */
-	void Robot::sendWorldInfo()
-	{
-		Application::Logger::log("Hij doet het!");
-		std::string remoteIpAdres = "localhost";
-		std::string remotePort = "12345";
-		
-
-		if (Application::MainApplication::isArgGiven( "-remote_ip"))
-		{
-			remoteIpAdres = Application::MainApplication::getArg( "-remote_ip").value;
-		}
-		if (Application::MainApplication::isArgGiven( "-remote_port"))
-		{
-			remotePort = Application::MainApplication::getArg( "-remote_port").value;
-		}
+	std::string Robot::getWorldInfo(){
 		std::vector<WallPtr> walls = RobotWorld::getRobotWorld().getWalls();
 		//"Walls255,256,301,302_420,421,555,556;Goals900,901";
 		std::string wallsString = "Walls";
@@ -268,9 +259,29 @@ namespace Model
 		{
 			wallsString += std::to_string(goal->getPosition().x) + "," + std::to_string(goal->getPosition().y);
 		}
+		return wallsString;
+	}
+	void Robot::sendWorldInfo()
+	{
+		Application::Logger::log("Hij doet het!");
+		std::string remoteIpAdres = "localhost";
+		std::string remotePort = "12345";
 		
-		Application::Logger::log(wallsString);
 
+		if (Application::MainApplication::isArgGiven( "-remote_ip"))
+		{
+			remoteIpAdres = Application::MainApplication::getArg( "-remote_ip").value;
+		}
+		if (Application::MainApplication::isArgGiven( "-remote_port"))
+		{
+			remotePort = Application::MainApplication::getArg( "-remote_port").value;
+		}
+		std::string wallsString = getWorldInfo();
+		Application::Logger::log(wallsString);	
+		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot( "Robot");
+		Messaging::Client c1ient(remoteIpAdres, static_cast<unsigned short>(std::stoi(remotePort)),robot);
+		Messaging::Message message( Messaging::SyncWorldRequest, wallsString);
+		c1ient.dispatchMessage( message);
 	}
 	/**
 	 *
@@ -375,6 +386,64 @@ namespace Model
 	/**
 	 *
 	 */
+	std::vector<int> Robot::getNumbersFromString(std::string stringWithNumbers)
+	{
+		std::vector<int> numbers;
+		std::string result;
+		std::istringstream numberStream(stringWithNumbers);
+
+		while (std::getline(numberStream, result, ','))
+		{
+			numbers.push_back(stoi(result));
+		}
+		return numbers;
+	}
+	void Robot::syncWalls(std::string& wallString)
+	{
+		const std::regex word("(Walls)");
+		std::stringstream wallStringStream;
+    	std::regex_replace(std::ostream_iterator<char>(wallStringStream), wallString.begin(), wallString.end(), word, "");
+		wallString = wallStringStream.str();
+
+		std::string result;
+		std::istringstream wallStream(wallString);
+
+		int x1, y1, x2, y2;
+
+		while (std::getline(wallStream, result, '_'))
+		{
+			std::vector<int> coordinates = getNumbersFromString(result);
+			
+			x1 = coordinates[0];
+			y1 = coordinates[1];
+			x2 = coordinates[2];
+			y2 = coordinates[3];
+
+			RobotWorld::getRobotWorld().newWall(wxPoint(x1, y1), wxPoint(x2, y2));
+			Application::Logger::log("Wall created at " + std::to_string(x1) + "," + std::to_string(y1) + " and " + std::to_string(x2) + "," + std::to_string(y2));
+		}
+	}
+
+
+	void Robot::syncGoals(std::string& goalString)
+	{
+		goalString.erase(0, 5);
+
+		std::string result;
+		std::istringstream goalStream(goalString);
+
+		int x, y;
+
+		while (std::getline(goalStream, result, '_'))
+		{
+			std::vector<int> coordinates = getNumbersFromString(result);
+
+			x = coordinates[0];
+			y = coordinates[1];
+			RobotWorld::getRobotWorld().newGoal("A",wxPoint(x, y));
+		}
+	}
+
 	void Robot::handleRequest( Messaging::Message& aMessage)
 	{
 		FUNCTRACE_TEXT_DEVELOP(aMessage.asString());
@@ -397,6 +466,32 @@ namespace Model
 			{
 				aMessage.setMessageType(Messaging::EchoResponse);
 				aMessage.setBody( "Messaging::EchoResponse: " + aMessage.asString());
+				break;
+			}
+			case Messaging::SyncWorldRequest:
+			{
+				Application::Logger::log("SyncWorldRequest!!!");
+				
+				std::string syncmessage = aMessage.getBody();
+				std::string response = getWorldInfo();
+
+				aMessage.setMessageType(Messaging::SyncWorldResponse);
+				aMessage.setBody(response);
+				Application::Logger::log(syncmessage);
+				std::string result = "";
+				std::istringstream goalStream(syncmessage);
+				while (std::getline(goalStream, result, ';'))
+				{
+					if (result.find("Walls") != std::string::npos)
+					{
+						syncWalls(result);
+					}
+					if (result.find("Goals") != std::string::npos)
+					{
+						syncGoals(result);
+					}
+				}
+
 				break;
 			}
 			default:
@@ -422,6 +517,24 @@ namespace Model
 			}
 			case Messaging::EchoResponse:
 			{
+				break;
+			}
+			case Messaging::SyncWorldResponse:
+			{
+				std::string syncmessage = aMessage.getBody();
+				std::string result = "";
+				std::istringstream goalStream(syncmessage);
+				while (std::getline(goalStream, result, ';'))
+				{
+					if (result.find("Walls") != std::string::npos)
+					{
+						syncWalls(result);
+					}
+					if (result.find("Goals") != std::string::npos)
+					{
+						syncGoals(result);
+					}
+				}
 				break;
 			}
 			default:
