@@ -142,7 +142,8 @@ namespace Model
 			 */
 			void unpopulate( bool aNotifyObservers = true);
 			/**
-			 *
+			 * Draws the walls and goals of a certain scenario
+			 * @param scenarioNumber The index of the scenario
 			 */
 			void createScenario( Scenarios scenarioNumber);
 			/**

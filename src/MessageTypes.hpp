@@ -23,6 +23,8 @@ namespace Messaging
 		EchoResponse,
 		SyncWorldRequest,
 		SyncWorldResponse,
+		SyncRobotRequest,
+		SyncRobotResponse,
 	};
 	//@}
 } /* namespace Messaging */

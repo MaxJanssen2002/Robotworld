@@ -259,7 +259,19 @@ namespace Model
 			void syncGoals(std::string& goalString);
 			void syncWalls(std::string& wallString);
 			std::string getWorldInfo();
+			/**
+			 * Syncs the robot after a request
+			 */
+			void syncRobot(std::string& robotString);
 		protected:
+			/**
+			 *
+			 */
+			void addNewRobot(std::string& robotString);
+			/**
+			 * Sends the position of the robot over and over
+			 */
+			void sendRobotPosMessage();
 			/**
 			 *
 			 */

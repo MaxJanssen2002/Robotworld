@@ -172,7 +172,8 @@ namespace View
 			 */
 			void unpopulate();
 			/**
-			 * Puts the robots, goals and walls for a specific scenario in the world
+			 * Asks the robotworld to put the walls and goals in the world to represent a certain scenario
+			 * @param scenarioNumber The index of the scenario
 			 */
 			void createScenario(Model::Scenarios scenarioNumber);
 		protected:

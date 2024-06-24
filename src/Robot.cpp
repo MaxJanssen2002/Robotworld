@@ -54,6 +54,10 @@ namespace Model
 	{
 		// We use the real position for starters, not an estimated position.
 		startPosition = position;
+		if(Application::MainApplication::isArgGiven("-name"))
+		{
+			name = Application::MainApplication::getArg("-name").value;
+		}
 	}
 	/**
 	 *
@@ -259,14 +263,17 @@ namespace Model
 		{
 			wallsString += std::to_string(goal->getPosition().x) + "," + std::to_string(goal->getPosition().y);
 		}
+		wallsString += ";";
+		wallsString += "Robot" + std::to_string(position.x) + "," + std::to_string(position.y) + "," + std::to_string(front.x) + "," + std::to_string(front.y);
 		return wallsString;
 	}
+	/**
+	 *
+	 */
 	void Robot::sendWorldInfo()
 	{
-		Application::Logger::log("Hij doet het!");
 		std::string remoteIpAdres = "localhost";
 		std::string remotePort = "12345";
-		
 
 		if (Application::MainApplication::isArgGiven( "-remote_ip"))
 		{
@@ -278,7 +285,7 @@ namespace Model
 		}
 		std::string wallsString = getWorldInfo();
 		Application::Logger::log(wallsString);	
-		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot( "Robot");
+		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot(name);
 		Messaging::Client c1ient(remoteIpAdres, static_cast<unsigned short>(std::stoi(remotePort)),robot);
 		Messaging::Message message( Messaging::SyncWorldRequest, wallsString);
 		c1ient.dispatchMessage( message);
@@ -398,12 +405,15 @@ namespace Model
 		}
 		return numbers;
 	}
+	/**
+	 *
+	 */
 	void Robot::syncWalls(std::string& wallString)
 	{
 		const std::regex word("(Walls)");
-		std::stringstream wallStringStream;
-    	std::regex_replace(std::ostream_iterator<char>(wallStringStream), wallString.begin(), wallString.end(), word, "");
-		wallString = wallStringStream.str();
+		std::stringstream wallRegexStream;
+    	std::regex_replace(std::ostream_iterator<char>(wallRegexStream), wallString.begin(), wallString.end(), word, "");
+		wallString = wallRegexStream.str();
 
 		std::string result;
 		std::istringstream wallStream(wallString);
@@ -423,11 +433,15 @@ namespace Model
 			Application::Logger::log("Wall created at " + std::to_string(x1) + "," + std::to_string(y1) + " and " + std::to_string(x2) + "," + std::to_string(y2));
 		}
 	}
-
-
+	/**
+	 *
+	 */
 	void Robot::syncGoals(std::string& goalString)
 	{
-		goalString.erase(0, 5);
+		const std::regex word("(Goals)");
+		std::stringstream goalRegexStream;
+    	std::regex_replace(std::ostream_iterator<char>(goalRegexStream), goalString.begin(), goalString.end(), word, "");
+		goalString = goalRegexStream.str();
 
 		std::string result;
 		std::istringstream goalStream(goalString);
@@ -440,10 +454,67 @@ namespace Model
 
 			x = coordinates[0];
 			y = coordinates[1];
-			RobotWorld::getRobotWorld().newGoal("A",wxPoint(x, y));
+			RobotWorld::getRobotWorld().newGoal("A", wxPoint(x, y));
 		}
 	}
+	/**
+	 *
+	 */
+	void Robot::syncRobot(std::string& robotString)
+	{
+		const std::regex word("(Robot)");
+		std::stringstream robotRegexStream;
+		std::regex_replace(std::ostream_iterator<char>(robotRegexStream), robotString.begin(), robotString.end(), word, "");
+		robotString = robotRegexStream.str();
 
+		std::string result;
+		std::istringstream robotStream(robotString);
+
+		int x, y, fx, fy;
+
+		std::vector<int> coordinates = getNumbersFromString(robotString);
+		x = coordinates[0];
+		y = coordinates[1];
+		fx = coordinates[2];
+		fy = coordinates[3];
+		std::vector<RobotPtr> robots = RobotWorld::getRobotWorld().getRobots();
+		RobotPtr robot = robots[1];
+		if(!robot)
+		{
+			Application::Logger::log("Robot not found");
+		}
+		else
+		{
+			Application::Logger::log("Moving robot: " + robot->asString());
+			robot->setPosition(wxPoint(x, y));
+			robot->setFront(BoundedVector(fx, fy));
+		}
+	}
+	/**
+	 *
+	 */
+	void Robot::addNewRobot(std::string& robotString)
+	{
+		const std::regex word("(Robot)");
+		std::stringstream robotRegexStream;
+		std::regex_replace(std::ostream_iterator<char>(robotRegexStream), robotString.begin(), robotString.end(), word, "");
+		robotString = robotRegexStream.str();
+
+		std::string result;
+		std::istringstream robotStream(robotString);
+
+		int x, y, fx, fy;
+
+		std::vector<int> coordinates = getNumbersFromString(robotString);
+		x = coordinates[0];
+		y = coordinates[1];
+		fx = coordinates[2];
+		fy = coordinates[3];
+		RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(x, y));
+	}
+	/**
+	 *
+	 */
 	void Robot::handleRequest( Messaging::Message& aMessage)
 	{
 		FUNCTRACE_TEXT_DEVELOP(aMessage.asString());
@@ -490,8 +561,24 @@ namespace Model
 					{
 						syncGoals(result);
 					}
+					if (result.find("Robot") != std::string::npos)
+					{
+						addNewRobot(result);
+					}
 				}
 
+				break;
+			}
+			case::Messaging::SyncRobotRequest:
+			{
+				std::string syncmessage = aMessage.getBody();
+				std::string response = "Robot" + std::to_string(position.x) + "," + std::to_string(position.y) + "," + std::to_string(front.x) + "," + std::to_string(front.y);
+				if (syncmessage.find("Robot") != std::string::npos)
+				{
+					syncRobot(syncmessage);
+				}
+				aMessage.setMessageType(Messaging::SyncRobotResponse);
+				aMessage.setBody(response);
 				break;
 			}
 			default:
@@ -534,6 +621,19 @@ namespace Model
 					{
 						syncGoals(result);
 					}
+					if (result.find("Robot") != std::string::npos)
+					{
+						addNewRobot(result);
+					}
+				}
+				break;
+			}
+			case Messaging::SyncRobotResponse:
+			{
+				std::string syncmessage = aMessage.getBody();
+				if (syncmessage.find("Robot") != std::string::npos)
+				{
+					syncRobot(syncmessage);
 				}
 				break;
 			}
@@ -570,6 +670,28 @@ namespace Model
 	/**
 	 *
 	 */
+	void Robot::sendRobotPosMessage() {
+		std::string message = "Robot" + std::to_string(position.x) + "," + std::to_string(position.y) + "," + std::to_string(front.x) + "," + std::to_string(front.y);
+		Messaging::Message msg( Messaging::SyncRobotRequest, message);
+		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot(name);
+		
+		std::string remoteIpAdres = "localhost";
+		std::string remotePort = "12345";
+		
+		if (Application::MainApplication::isArgGiven( "-remote_ip"))
+		{
+			remoteIpAdres = Application::MainApplication::getArg( "-remote_ip").value;
+		}
+		if (Application::MainApplication::isArgGiven( "-remote_port"))
+		{
+			remotePort = Application::MainApplication::getArg( "-remote_port").value;
+		}
+		Messaging::Client c1ient(remoteIpAdres, static_cast<unsigned short>(std::stoi(remotePort)),robot);
+		c1ient.dispatchMessage( msg);
+	}
+	/**
+	 *
+	 */
 	void Robot::drive()
 	{
 		try
@@ -594,7 +716,7 @@ namespace Model
 				front = BoundedVector( vertex.asPoint(), position);
 				position.x = vertex.x;
 				position.y = vertex.y;
-
+				sendRobotPosMessage();
 				// Stop on arrival or collision
 				if (arrived(goal) || collision())
 				{
