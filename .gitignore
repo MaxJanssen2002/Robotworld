@@ -21,7 +21,7 @@ linux/
 
 compile
 
-config.h.in
+./config.h.in
 
 Doxyfile.in
 
@@ -45,9 +45,9 @@ licence.txt
 
 ltmain.sh
 
-Makefile.am
+./Makefile.am
 
-Makefile.in
+./Makefile.in
 
 missing
 
