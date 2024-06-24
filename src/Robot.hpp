@@ -165,6 +165,10 @@ namespace Model
 			/**
 			 *
 			 */
+			void sendWorldInfo();
+			/**
+			 *
+			 */
 			wxRegion getRegion() const;
 			/**
 			 *

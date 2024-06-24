@@ -495,6 +495,48 @@ namespace Application
 					wxGBPosition( 5, 3),
 					wxGBSpan( 1, 1),
 					wxGROW);
+		sizer->Add( makeButton( panel,
+								"Sync worlds",
+								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+					wxGBPosition( 5, 4),
+					wxGBSpan( 1, 1),
+					wxGROW);
+		sizer->Add( makeButton( panel,
+								"Scenario 1.1",
+								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+					wxGBPosition( 6, 1),
+					wxGBSpan( 1, 1),
+					wxGROW);
+		sizer->Add( makeButton( panel,
+								"Scenario 1.2",
+								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+					wxGBPosition( 7, 1),
+					wxGBSpan( 1, 1),
+					wxGROW);
+		sizer->Add( makeButton( panel,
+								"Scenario 2.1",
+								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+					wxGBPosition( 6, 2),
+					wxGBSpan( 1, 1),
+					wxGROW);
+		sizer->Add( makeButton( panel,
+								"Scenario 2.2",
+								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+					wxGBPosition( 7, 2),
+					wxGBSpan( 1, 1),
+					wxGROW);
+		sizer->Add( makeButton( panel,
+								"Scenario 3.1",
+								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+					wxGBPosition( 6, 3),
+					wxGBSpan( 1, 1),
+					wxGROW);
+		sizer->Add( makeButton( panel,
+								"Scenario 3.2",
+								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+					wxGBPosition( 7, 3),
+					wxGBSpan( 1, 1),
+					wxGROW);
 
 		sizer->Add( 5, 5,
 					wxGBPosition( 6, 4),
@@ -752,6 +794,17 @@ namespace Application
 		if (robot)
 		{
 			robot->stopCommunicating();
+		}
+	}
+	/**
+	 *
+	 */
+	void MainFrameWindow::OnSyncWorlds( wxCommandEvent& UNUSEDPARAM(anEvent))
+	{
+		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot( "Robot");
+		if (robot)
+		{
+			robot->sendWorldInfo();
 		}
 	}
 	/**

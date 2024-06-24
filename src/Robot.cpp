@@ -237,6 +237,44 @@ namespace Model
 	/**
 	 *
 	 */
+	void Robot::sendWorldInfo()
+	{
+		Application::Logger::log("Hij doet het!");
+		std::string remoteIpAdres = "localhost";
+		std::string remotePort = "12345";
+		
+
+		if (Application::MainApplication::isArgGiven( "-remote_ip"))
+		{
+			remoteIpAdres = Application::MainApplication::getArg( "-remote_ip").value;
+		}
+		if (Application::MainApplication::isArgGiven( "-remote_port"))
+		{
+			remotePort = Application::MainApplication::getArg( "-remote_port").value;
+		}
+		std::vector<WallPtr> walls = RobotWorld::getRobotWorld().getWalls();
+		//"Walls255,256,301,302_420,421,555,556;Goals900,901";
+		std::string wallsString = "Walls";
+		for(WallPtr wall : walls)
+		{
+			wallsString += std::to_string(wall->getPoint1().x) + "," + std::to_string(wall->getPoint1().y) + "," +
+						   std::to_string(wall->getPoint2().x) + "," + std::to_string(wall->getPoint2().y) + "_";
+		}
+		wallsString = wallsString.substr(0, wallsString.size() - 1);
+		wallsString += ";";
+		std::vector<GoalPtr> goals = RobotWorld::getRobotWorld().getGoals();
+		wallsString += "Goals";
+		for(GoalPtr goal : goals)
+		{
+			wallsString += std::to_string(goal->getPosition().x) + "," + std::to_string(goal->getPosition().y);
+		}
+		
+		Application::Logger::log(wallsString);
+
+	}
+	/**
+	 *
+	 */
 	wxRegion Robot::getRegion() const
 	{
 		wxPoint translatedPoints[] = { getFrontRight(), getFrontLeft(), getBackLeft(), getBackRight() };
