@@ -383,6 +383,7 @@ namespace Model
 				Application::Logger::log("Scenario 1.1");
 				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(100, 100), false);
 				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(450, 450), false);
+				createBorder();
 				break;
 			case S1_2:
 				Application::Logger::log("Scenario 1.2");
@@ -393,6 +394,7 @@ namespace Model
 				Application::Logger::log("Scenario 2.1");
 				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(50, 50), false);
 				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(450, 450), false);
+				createBorder();
 				break;
 			case S2_2:
 				Application::Logger::log("Scenario 2.2");
@@ -404,6 +406,7 @@ namespace Model
 				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(100, 100), false);
 				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(450, 450), false);
 				RobotWorld::getRobotWorld().newWall( wxPoint(0, 160), wxPoint(300, 160),false);
+				createBorder();
 				break;
 			case S3_2:
 				Application::Logger::log("Scenario 3.2");
@@ -415,6 +418,16 @@ namespace Model
 				break;
 		}
 		notifyObservers();
+	}
+	/**
+	 *
+	 */
+	void RobotWorld::createBorder()
+	{
+		RobotWorld::getRobotWorld().newWall( wxPoint(0, 0), wxPoint(500, 0),false);
+		RobotWorld::getRobotWorld().newWall( wxPoint(0, 0), wxPoint(0, 500),false);
+		RobotWorld::getRobotWorld().newWall( wxPoint(500, 0), wxPoint(500, 500),false);
+		RobotWorld::getRobotWorld().newWall( wxPoint(0, 500), wxPoint(500, 500),false);
 	}
 	/**
 	 *

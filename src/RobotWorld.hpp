@@ -149,6 +149,10 @@ namespace Model
 			/**
 			 *
 			 */
+			void createBorder();
+			/**
+			 *
+			 */
 			std::string asCode() const;
 			/**
 			 *
