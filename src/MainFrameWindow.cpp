@@ -682,8 +682,26 @@ namespace Application
 		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot( "Robot");
 		if (robot && !robot->isActing())
 		{
+			std::string remoteIpAdres = "localhost";
+			std::string remotePort = "12345";
+
+			if (MainApplication::isArgGiven( "-remote_ip"))
+			{
+				remoteIpAdres = MainApplication::getArg( "-remote_ip").value;
+			}
+			if (MainApplication::isArgGiven( "-remote_port"))
+			{
+				remotePort = MainApplication::getArg( "-remote_port").value;
+			}
 			robot->startActing();
+			Messaging::Client c1ient( remoteIpAdres,
+									  static_cast<unsigned short>(std::stoi(remotePort)),
+									  robot);
+			Messaging::Message message( Messaging::StartRobotRequest, "");
+			c1ient.dispatchMessage( message);
 		}
+
+		
 	}
 	/**
 	 *

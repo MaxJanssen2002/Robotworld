@@ -50,7 +50,9 @@ namespace Model
 								speed( 0.0),
 								acting(false),
 								driving(false),
-								communicating(false)
+								communicating(false),
+								almostCollided(false),
+								worldSyncer(false)
 	{
 		// We use the real position for starters, not an estimated position.
 		startPosition = position;
@@ -246,26 +248,27 @@ namespace Model
 	/**
 	 *
 	 */
-	std::string Robot::getWorldInfo(){
+	std::string Robot::getWorldInfo()
+	{
 		std::vector<WallPtr> walls = RobotWorld::getRobotWorld().getWalls();
-		//"Walls255,256,301,302_420,421,555,556;Goals900,901";
-		std::string wallsString = "Walls";
+		
+		std::string worldInfo = "Walls";
 		for(WallPtr wall : walls)
 		{
-			wallsString += std::to_string(wall->getPoint1().x) + "," + std::to_string(wall->getPoint1().y) + "," +
+			worldInfo += std::to_string(wall->getPoint1().x) + "," + std::to_string(wall->getPoint1().y) + "," +
 						   std::to_string(wall->getPoint2().x) + "," + std::to_string(wall->getPoint2().y) + "_";
 		}
-		wallsString = wallsString.substr(0, wallsString.size() - 1);
-		wallsString += ";";
+		worldInfo = worldInfo.substr(0, worldInfo.size() - 1);
+		worldInfo += ";";
 		std::vector<GoalPtr> goals = RobotWorld::getRobotWorld().getGoals();
-		wallsString += "Goals";
+		worldInfo += "Goals";
 		for(GoalPtr goal : goals)
 		{
-			wallsString += std::to_string(goal->getPosition().x) + "," + std::to_string(goal->getPosition().y);
+			worldInfo += std::to_string(goal->getPosition().x) + "," + std::to_string(goal->getPosition().y);
 		}
-		wallsString += ";";
-		wallsString += "Robot" + std::to_string(position.x) + "," + std::to_string(position.y) + "," + std::to_string(front.x) + "," + std::to_string(front.y);
-		return wallsString;
+		worldInfo += ";";
+		worldInfo += "Robot" + std::to_string(startPosition.x) + "," + std::to_string(startPosition.y) + "," + std::to_string(0.0) + "," + std::to_string(0.0);
+		return worldInfo;
 	}
 	/**
 	 *
@@ -289,6 +292,7 @@ namespace Model
 		Messaging::Client c1ient(remoteIpAdres, static_cast<unsigned short>(std::stoi(remotePort)),robot);
 		Messaging::Message message( Messaging::SyncWorldRequest, wallsString);
 		c1ient.dispatchMessage( message);
+		worldSyncer = true;
 	}
 	/**
 	 *
@@ -306,6 +310,24 @@ namespace Model
 		wxRegion region = getRegion();
 		region.Intersect( aRegion);
 		return !region.IsEmpty();
+	}
+	/**
+	 *
+	 */
+	bool Robot::closeToOtherRobot(double maximumDistance) const
+	{
+		std::vector<RobotPtr> robots = RobotWorld::getRobotWorld().getRobots();
+
+		for (const RobotPtr& robot : robots)
+		{
+			double distanceToOtherRobot = Utils::Shape2DUtils::distance(position, robot->getPosition());
+			Application::Logger::log(std::to_string(distanceToOtherRobot));
+			if (distanceToOtherRobot < ROBOT_WARNING_DISTANCE && distanceToOtherRobot != 0.0)
+			{
+				return true;
+			}
+		}
+		return false;	
 	}
 	/**
 	 *
@@ -581,6 +603,11 @@ namespace Model
 				aMessage.setBody(response);
 				break;
 			}
+			case::Messaging::StartRobotRequest:
+			{
+				startActing();
+				break;
+			}
 			default:
 			{
 				TRACE_DEVELOP(__PRETTY_FUNCTION__ + std::string(": default not implemented"));
@@ -717,11 +744,32 @@ namespace Model
 				position.x = vertex.x;
 				position.y = vertex.y;
 				sendRobotPosMessage();
+
+				if (closeToOtherRobot(ROBOT_WARNING_DISTANCE) && !almostCollided)
+				{
+					almostCollided = true;
+					if (worldSyncer)
+					{
+						driving = false;
+						startDriving();
+					}
+					else
+					{
+						setSpeed(0.0, false);
+					}
+				}
+
+				if (almostCollided && !closeToOtherRobot(ROBOT_RESTART_DISTANCE))
+				{
+					setSpeed(10.0, false);
+				}
+
 				// Stop on arrival or collision
 				if (arrived(goal) || collision())
 				{
 					Application::Logger::log(__PRETTY_FUNCTION__ + std::string(": arrived or collision"));
 					driving = false;
+					almostCollided = false;
 				}
 
 				notifyObservers();

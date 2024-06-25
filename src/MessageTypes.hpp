@@ -25,6 +25,7 @@ namespace Messaging
 		SyncWorldResponse,
 		SyncRobotRequest,
 		SyncRobotResponse,
+		StartRobotRequest,
 	};
 	//@}
 } /* namespace Messaging */

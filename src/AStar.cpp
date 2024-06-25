@@ -3,6 +3,7 @@
 #include "RobotWorld.hpp"
 #include "Shape2DUtils.hpp"
 #include "Wall.hpp"
+#include "Robot.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -60,6 +61,9 @@ namespace PathAlgorithm
 		const std::vector< Model::WallPtr >& walls = Model::RobotWorld::getRobotWorld().getWalls();
 		std::vector< Vertex > neighbours;
 
+		const std::vector<Model::RobotPtr>& robots = Model::RobotWorld::getRobotWorld().getRobots();
+		Model::RobotPtr remoteRobot = robots[1];
+
 		for (int i = 0; i < 8; ++i)
 		{
 			bool addToNeigbours = true;
@@ -72,6 +76,11 @@ namespace PathAlgorithm
 					addToNeigbours = false;
 					break;
 				}
+			}
+			wxPoint translatedPoints[] = { remoteRobot->getFrontRight(), remoteRobot->getFrontLeft(), remoteRobot->getBackLeft(), remoteRobot->getBackRight() };
+			if(Utils::Shape2DUtils::isOnLine(translatedPoints, 4, vertex.asPoint(),aFreeRadius+10))
+			{
+				addToNeigbours = false;
 			}
 			if (addToNeigbours == true)
 			{

@@ -19,6 +19,9 @@
 #include <string>
 #include <thread>
 
+#define ROBOT_WARNING_DISTANCE 100
+#define ROBOT_RESTART_DISTANCE 150
+
 namespace Messaging
 {
 	class Message;
@@ -163,7 +166,7 @@ namespace Model
 			 */
 			void stopCommunicating();
 			/**
-			 *
+			 *  Sends the locations of the goals, walls and robots in a world to another world
 			 */
 			void sendWorldInfo();
 			/**
@@ -174,6 +177,10 @@ namespace Model
 			 *
 			 */
 			bool intersects( const wxRegion& aRegion) const;
+			/**
+			 * Returns true if the distance between the midpoint of this robot and another robot is smaller than a certain maximum; false if not
+			 */
+			bool closeToOtherRobot(double maximumDistance) const;
 			/**
 			 *
 			 */
@@ -255,17 +262,36 @@ namespace Model
 			// The start point of this run
 			wxPoint startPosition;
 			//@}
+			/**
+			 * Extracts the numbers from a string if they are separated by commas
+			 * @param stringWithNumbers The string to extract the numbers from
+			 * @return A vector of numbers extracted from the string
+			 */
 			std::vector<int> getNumbersFromString(std::string stringWithNumbers);
+			/**
+			 * Puts the goal(s) from another robotworld in the current robotworld
+			 * @param goalString The position(s) of the goal(s) from another world
+			 */
 			void syncGoals(std::string& goalString);
+			/**
+			 * Puts the wall(s) from another robotworld in the current robotworld
+			 * @param wallString The position(s) of the wall(s) from another world
+			 */
 			void syncWalls(std::string& wallString);
+			/**
+			 * Puts the positions of the goals, walls, and robots of the current world into a string
+			 * @return The string with the information of the world
+			 */
 			std::string getWorldInfo();
 			/**
 			 * Syncs the robot after a request
+			 * @param robotString The position and rotation of the robot
 			 */
 			void syncRobot(std::string& robotString);
 		protected:
 			/**
-			 *
+			 * Adds a robot based on the info from a client server message
+			 * @param robotString A string that contains the info of the robot
 			 */
 			void addNewRobot(std::string& robotString);
 			/**
@@ -337,6 +363,14 @@ namespace Model
 			 *
 			 */
 			bool communicating;
+			/**
+			 *
+			 */
+			bool almostCollided;
+			/**
+			 *
+			 */
+			bool worldSyncer;
 			/**
 			 *
 			 */
