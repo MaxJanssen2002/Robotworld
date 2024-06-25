@@ -267,7 +267,10 @@ namespace Model
 			worldInfo += std::to_string(goal->getPosition().x) + "," + std::to_string(goal->getPosition().y);
 		}
 		worldInfo += ";";
-		worldInfo += "Robot" + std::to_string(startPosition.x) + "," + std::to_string(startPosition.y) + "," + std::to_string(0.0) + "," + std::to_string(0.0);
+		std::vector<RobotPtr> robots = RobotWorld::getRobotWorld().getRobots();
+		RobotPtr thisRobot = robots[0];
+		wxPoint currentPos = thisRobot->getPosition();
+		worldInfo += "Robot" + std::to_string(currentPos.x) + "," + std::to_string(currentPos.y) + "," + std::to_string(0.0) + "," + std::to_string(0.0);
 		return worldInfo;
 	}
 	/**
@@ -320,11 +323,13 @@ namespace Model
 
 		for (const RobotPtr& robot : robots)
 		{
-			double distanceToOtherRobot = Utils::Shape2DUtils::distance(position, robot->getPosition());
-			Application::Logger::log(std::to_string(distanceToOtherRobot));
-			if (distanceToOtherRobot < ROBOT_WARNING_DISTANCE && distanceToOtherRobot != 0.0)
-			{
-				return true;
+			if(robot){
+				double distanceToOtherRobot = Utils::Shape2DUtils::distance(position, robot->getPosition());
+				Application::Logger::log(std::to_string(distanceToOtherRobot));
+				if (distanceToOtherRobot < ROBOT_WARNING_DISTANCE && distanceToOtherRobot != 0.0)
+				{
+					return true;
+				}
 			}
 		}
 		return false;	
@@ -701,20 +706,21 @@ namespace Model
 		std::string message = "Robot" + std::to_string(position.x) + "," + std::to_string(position.y) + "," + std::to_string(front.x) + "," + std::to_string(front.y);
 		Messaging::Message msg( Messaging::SyncRobotRequest, message);
 		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot(name);
-		
-		std::string remoteIpAdres = "localhost";
-		std::string remotePort = "12345";
-		
-		if (Application::MainApplication::isArgGiven( "-remote_ip"))
-		{
-			remoteIpAdres = Application::MainApplication::getArg( "-remote_ip").value;
+		if(robot){	
+			std::string remoteIpAdres = "localhost";
+			std::string remotePort = "12345";
+			
+			if (Application::MainApplication::isArgGiven( "-remote_ip"))
+			{
+				remoteIpAdres = Application::MainApplication::getArg( "-remote_ip").value;
+			}
+			if (Application::MainApplication::isArgGiven( "-remote_port"))
+			{
+				remotePort = Application::MainApplication::getArg( "-remote_port").value;
+			}
+			Messaging::Client c1ient(remoteIpAdres, static_cast<unsigned short>(std::stoi(remotePort)),robot);
+			c1ient.dispatchMessage( msg);
 		}
-		if (Application::MainApplication::isArgGiven( "-remote_port"))
-		{
-			remotePort = Application::MainApplication::getArg( "-remote_port").value;
-		}
-		Messaging::Client c1ient(remoteIpAdres, static_cast<unsigned short>(std::stoi(remotePort)),robot);
-		c1ient.dispatchMessage( msg);
 	}
 	/**
 	 *
@@ -848,13 +854,15 @@ namespace Model
 		const std::vector< RobotPtr >& robots = RobotWorld::getRobotWorld().getRobots();
 		for (RobotPtr robot : robots)
 		{
-			if ( getObjectId() == robot->getObjectId())
-			{
-				continue;
-			}
-			if(intersects(robot->getRegion()))
-			{
-				return true;
+			if(robot){		
+				if ( getObjectId() == robot->getObjectId())
+				{
+					continue;
+				}
+				if(intersects(robot->getRegion()))
+				{
+					return true;
+				}
 			}
 		}
 		return false;
