@@ -182,6 +182,10 @@ namespace Model
 			 */
 			bool closeToOtherRobot(double maximumDistance) const;
 			/**
+			 * Clears the previous path created by AStar
+			 */
+			void clearPath();
+			/**
 			 *
 			 */
 			wxPoint getFrontLeft() const;

@@ -293,9 +293,12 @@ namespace Model
 		std::string wallsString = getWorldInfo();
 		Application::Logger::log(wallsString);	
 		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot(name);
-		Messaging::Client c1ient(remoteIpAdres, static_cast<unsigned short>(std::stoi(remotePort)),robot);
-		Messaging::Message message( Messaging::SyncWorldRequest, wallsString);
-		c1ient.dispatchMessage( message);
+		if(robot){
+			Messaging::Client c1ient(remoteIpAdres, static_cast<unsigned short>(std::stoi(remotePort)),robot);
+			Messaging::Message message( Messaging::SyncWorldRequest, wallsString);
+			c1ient.dispatchMessage( message);
+			
+		}
 		worldSyncer = true;
 	}
 	/**
@@ -320,13 +323,12 @@ namespace Model
 	 */
 	bool Robot::closeToOtherRobot(double maximumDistance) const
 	{
-		std::vector<RobotPtr> robots = RobotWorld::getRobotWorld().getRobots();
+		const std::vector<RobotPtr>& robots = RobotWorld::getRobotWorld().getRobots();
 
-		for (const RobotPtr& robot : robots)
+		for (RobotPtr robot : robots)
 		{
 			if(robot){
 				double distanceToOtherRobot = Utils::Shape2DUtils::distance(position, robot->getPosition());
-				Application::Logger::log(std::to_string(distanceToOtherRobot));
 				if (distanceToOtherRobot < maximumDistance && distanceToOtherRobot != 0.0)
 				{
 					return true;
@@ -334,6 +336,13 @@ namespace Model
 			}
 		}
 		return false;	
+	}
+	/**
+	 *
+	 */
+	void Robot::clearPath()
+	{
+		path.clear();
 	}
 	/**
 	 *
@@ -505,7 +514,7 @@ namespace Model
 		y = coordinates[1];
 		fx = coordinates[2];
 		fy = coordinates[3];
-		std::vector<RobotPtr> robots = RobotWorld::getRobotWorld().getRobots();
+		const std::vector<RobotPtr>& robots = RobotWorld::getRobotWorld().getRobots();
 		RobotPtr robot = robots[1];
 		if(!robot)
 		{
@@ -606,13 +615,10 @@ namespace Model
 			case::Messaging::SyncRobotRequest:
 			{
 				std::string syncmessage = aMessage.getBody();
-				std::string response = "Robot" + std::to_string(position.x) + "," + std::to_string(position.y) + "," + std::to_string(front.x) + "," + std::to_string(front.y);
 				if (syncmessage.find("Robot") != std::string::npos)
 				{
 					syncRobot(syncmessage);
 				}
-				aMessage.setMessageType(Messaging::SyncRobotResponse);
-				aMessage.setBody(response);
 				break;
 			}
 			case::Messaging::StartRobotRequest:
@@ -675,11 +681,6 @@ namespace Model
 			}
 			case Messaging::SyncRobotResponse:
 			{
-				std::string syncmessage = aMessage.getBody();
-				if (syncmessage.find("Robot") != std::string::npos)
-				{
-					syncRobot(syncmessage);
-				}
 				break;
 			}
 			default:
@@ -732,8 +733,10 @@ namespace Model
 			{
 				remotePort = Application::MainApplication::getArg( "-remote_port").value;
 			}
-			Messaging::Client c1ient(remoteIpAdres, static_cast<unsigned short>(std::stoi(remotePort)),robot);
-			c1ient.dispatchMessage( msg);
+			if(robot){
+				Messaging::Client c1ient(remoteIpAdres, static_cast<unsigned short>(std::stoi(remotePort)),robot);
+				c1ient.dispatchMessage( msg);
+			}
 		}
 	}
 	/**

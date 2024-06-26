@@ -380,18 +380,13 @@ namespace Model
 		walls.clear();
 		goals.clear();
 		wayPoints.clear();
-		Application::Logger::log("Size voor robots.empty:" + std::to_string(robots.size()));
+		
 		if(robots.empty())
 		{
 			newRobot("Robot", wxPoint(0, 0));
 		}
-		Application::Logger::log("Size voor robots.size==2:" + std::to_string(robots.size()));
-		// if(robots.size()==2)
-		// {
-		// 	robots.pop_back();
-		// }
-		Application::Logger::log("Size na robots.size==2:" + std::to_string(robots.size()));
 		RobotPtr robot = robots.front();
+		robot->clearPath();
 		switch(scenarioNumber)
 		{
 			case S1_1:
