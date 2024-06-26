@@ -66,6 +66,7 @@ namespace Model
 	 */
 	Robot::~Robot()
 	{
+		Application::Logger::log(__PRETTY_FUNCTION__);
 		if(driving)
 		{
 			Robot::stopDriving();
@@ -326,7 +327,7 @@ namespace Model
 			if(robot){
 				double distanceToOtherRobot = Utils::Shape2DUtils::distance(position, robot->getPosition());
 				Application::Logger::log(std::to_string(distanceToOtherRobot));
-				if (distanceToOtherRobot < ROBOT_WARNING_DISTANCE && distanceToOtherRobot != 0.0)
+				if (distanceToOtherRobot < maximumDistance && distanceToOtherRobot != 0.0)
 				{
 					return true;
 				}
@@ -590,7 +591,13 @@ namespace Model
 					}
 					if (result.find("Robot") != std::string::npos)
 					{
-						addNewRobot(result);
+						if(RobotWorld::getRobotWorld().getRobots().size() == 1)
+						{
+							addNewRobot(result);
+						}
+						else{
+							syncRobot(result);
+						}
 					}
 				}
 
@@ -655,7 +662,13 @@ namespace Model
 					}
 					if (result.find("Robot") != std::string::npos)
 					{
-						addNewRobot(result);
+						if(RobotWorld::getRobotWorld().getRobots().size() == 1)
+						{
+							addNewRobot(result);
+						}
+						else{
+							syncRobot(result);
+						}
 					}
 				}
 				break;
@@ -702,7 +715,8 @@ namespace Model
 	/**
 	 *
 	 */
-	void Robot::sendRobotPosMessage() {
+	void Robot::sendRobotPosMessage() 
+	{
 		std::string message = "Robot" + std::to_string(position.x) + "," + std::to_string(position.y) + "," + std::to_string(front.x) + "," + std::to_string(front.y);
 		Messaging::Message msg( Messaging::SyncRobotRequest, message);
 		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot(name);

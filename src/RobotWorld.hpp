@@ -147,7 +147,7 @@ namespace Model
 			 */
 			void createScenario( Scenarios scenarioNumber);
 			/**
-			 *
+			 * Puts walls at the edges of the window of the robotworld
 			 */
 			void createBorder();
 			/**

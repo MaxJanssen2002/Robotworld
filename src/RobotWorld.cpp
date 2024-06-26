@@ -377,42 +377,57 @@ namespace Model
 	 */
 	void RobotWorld::createScenario( Scenarios scenarioNumber)
 	{
+		walls.clear();
+		goals.clear();
+		wayPoints.clear();
+		Application::Logger::log("Size voor robots.empty:" + std::to_string(robots.size()));
+		if(robots.empty())
+		{
+			newRobot("Robot", wxPoint(0, 0));
+		}
+		Application::Logger::log("Size voor robots.size==2:" + std::to_string(robots.size()));
+		// if(robots.size()==2)
+		// {
+		// 	robots.pop_back();
+		// }
+		Application::Logger::log("Size na robots.size==2:" + std::to_string(robots.size()));
+		RobotPtr robot = robots.front();
 		switch(scenarioNumber)
 		{
 			case S1_1:
 				Application::Logger::log("Scenario 1.1");
-				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(150, 150), false);
-				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(450, 450), false);
+				robot->setPosition(wxPoint(150,150));
+				newGoal("Goal", wxPoint(450, 450), false);
 				createBorder();
 				break;
 			case S1_2:
 				Application::Logger::log("Scenario 1.2");
-				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(350, 350), false);
-				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(50, 50), false);
+				robot->setPosition(wxPoint(350,350));
+				newGoal("Goal", wxPoint(50, 50), false);
 				break;
 			case S2_1:
 				Application::Logger::log("Scenario 2.1");
-				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(50, 50), false);
-				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(450, 450), false);
+				robot->setPosition(wxPoint(50,50));
+				newGoal("Goal", wxPoint(450, 450), false);
 				createBorder();
 				break;
 			case S2_2:
 				Application::Logger::log("Scenario 2.2");
-				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(450, 50), false);
-				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(50, 450), false);
+				robot->setPosition(wxPoint(450,50));
+				newGoal("Goal", wxPoint(50, 450), false);
 				break;
 			case S3_1:
 				Application::Logger::log("Scenario 3.1");
-				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(150, 110), false);
-				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(450, 450), false);
-				RobotWorld::getRobotWorld().newWall( wxPoint(0, 160), wxPoint(300, 160),false);
+				robot->setPosition(wxPoint(150,110));
+				newGoal("Goal", wxPoint(450, 450), false);
+				newWall( wxPoint(0, 160), wxPoint(300, 160),false);
 				createBorder();
 				break;
 			case S3_2:
 				Application::Logger::log("Scenario 3.2");
-				RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(350, 390), false);
-				RobotWorld::getRobotWorld().newGoal("Goal", wxPoint(50, 50), false);
-				RobotWorld::getRobotWorld().newWall( wxPoint(200, 340), wxPoint(500, 340),false);
+				robot->setPosition(wxPoint(350,390));
+				newGoal("Goal", wxPoint(50, 50), false);
+				newWall( wxPoint(200, 340), wxPoint(500, 340),false);
 				break;
 			default:
 				break;
@@ -420,8 +435,8 @@ namespace Model
 		notifyObservers();
 	}
 	/**
-	 *
-	 */
+	*
+	*/
 	void RobotWorld::createBorder()
 	{
 		RobotWorld::getRobotWorld().newWall( wxPoint(0, 0), wxPoint(500, 0),false);

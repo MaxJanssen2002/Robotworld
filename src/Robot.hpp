@@ -20,7 +20,7 @@
 #include <thread>
 
 #define ROBOT_WARNING_DISTANCE 100
-#define ROBOT_RESTART_DISTANCE 150
+#define ROBOT_RESTART_DISTANCE 115
 
 namespace Messaging
 {
