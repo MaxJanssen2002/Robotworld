@@ -45,6 +45,10 @@ Hieronder is te lezen hoe een scenario kan worden uitgevoerd. In dit voorbeeld i
 
 #### Nog een scenario uitvoeren
 
-Als je al een scenario hebt gedaan en de applicatie(s) nog niet hebt afgesloten, kun je de vorige instructies nog eens volgen. Er zijn echter twee dingen waarop moet worden gelet.
-- Stap 2 kan worden overgeslagen. Je hoeft niet nog een keer op 'Start listening' te klikken.
-- Klik vooral niet op 'Unpopulate'. Dit haalt de robot wel uit de wereld, maar door een shared pointer vanuit de clientserver-sessie wordt de robot niet volledig uit de applicatie verwijderd, wat resulteert in undefined behavior. Mocht je toch op 'Unpopulate' hebben geklikt, start dan de applicatie opnieuw op.
+Als je al een scenario hebt gedaan en de applicatie(s) nog niet hebt afgesloten, moet je de volgende stappen volgen om een ander scenario te doen (in dit geval scenario 2).
+1. Klik bij beide applicaties op 'Stop robot'.
+2. Klik bij de ene applicatie op 'Scenario 2.1' en bij de andere applicatie op 'Scenario 2.2' (of andersom).
+3. Klik bij één applicatie op 'Sync worlds'.
+4. Klik bij één applicatie op 'Start both robots'.
+
+**LET OP: Klik vooral niet op 'Unpopulate'. Dit haalt de robot wel uit de wereld, maar door een shared pointer vanuit de clientserver-sessie wordt de robot niet volledig uit de applicatie verwijderd, wat resulteert in undefined behavior. Mocht je toch op 'Unpopulate' hebben geklikt, start dan de applicatie opnieuw op.**
