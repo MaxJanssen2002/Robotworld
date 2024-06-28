@@ -377,7 +377,22 @@ namespace Model
 	 */
 	void RobotWorld::createScenario( Scenarios scenarioNumber)
 	{
-		walls.clear();
+		if (currentScenario == scenarioNumber)
+		{
+			Application::Logger::log("You've already clicked this button. No need to do it twice.");
+			return;
+		}
+		else
+		{
+			currentScenario = scenarioNumber;
+		}
+
+		if (walls.empty())
+		{
+			createBorder();
+		}
+		removeNonBorderWalls();
+
 		goals.clear();
 		wayPoints.clear();
 		
@@ -387,39 +402,36 @@ namespace Model
 		}
 		RobotPtr robot = robots.front();
 		robot->clearPath();
-		switch(scenarioNumber)
+		switch(currentScenario)
 		{
 			case S1_1:
-				Application::Logger::log("Scenario 1.1");
+				Application::Logger::log("Scenario 1.1 created");
 				robot->setPosition(wxPoint(150,150));
 				newGoal("Goal", wxPoint(450, 450), false);
-				createBorder();
 				break;
 			case S1_2:
-				Application::Logger::log("Scenario 1.2");
+				Application::Logger::log("Scenario 1.2 created");
 				robot->setPosition(wxPoint(350,350));
 				newGoal("Goal", wxPoint(50, 50), false);
 				break;
 			case S2_1:
-				Application::Logger::log("Scenario 2.1");
+				Application::Logger::log("Scenario 2.1 created");
 				robot->setPosition(wxPoint(50,50));
 				newGoal("Goal", wxPoint(450, 450), false);
-				createBorder();
 				break;
 			case S2_2:
-				Application::Logger::log("Scenario 2.2");
+				Application::Logger::log("Scenario 2.2 created");
 				robot->setPosition(wxPoint(450,50));
 				newGoal("Goal", wxPoint(50, 450), false);
 				break;
 			case S3_1:
-				Application::Logger::log("Scenario 3.1");
+				Application::Logger::log("Scenario 3.1 created");
 				robot->setPosition(wxPoint(150,110));
 				newGoal("Goal", wxPoint(450, 450), false);
 				newWall( wxPoint(0, 160), wxPoint(300, 160),false);
-				createBorder();
 				break;
 			case S3_2:
-				Application::Logger::log("Scenario 3.2");
+				Application::Logger::log("Scenario 3.2 created");
 				robot->setPosition(wxPoint(350,390));
 				newGoal("Goal", wxPoint(50, 50), false);
 				newWall( wxPoint(200, 340), wxPoint(500, 340),false);
@@ -438,6 +450,16 @@ namespace Model
 		RobotWorld::getRobotWorld().newWall( wxPoint(0, 0), wxPoint(0, 500),false);
 		RobotWorld::getRobotWorld().newWall( wxPoint(500, 0), wxPoint(500, 500),false);
 		RobotWorld::getRobotWorld().newWall( wxPoint(0, 500), wxPoint(500, 500),false);
+	}
+	/**
+	 *
+	 */
+	void RobotWorld::removeNonBorderWalls()
+	{
+		while (walls.size() > 4)
+		{
+			walls.pop_back();
+		}
 	}
 	/**
 	 *

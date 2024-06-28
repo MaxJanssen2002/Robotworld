@@ -463,6 +463,12 @@ namespace Application
 					wxGBPosition( 1, 2),
 					wxGBSpan( 1, 1),
 					wxGROW);
+		sizer->Add( makeButton( panel,
+								"Sync worlds",
+								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
+					wxGBPosition( 1, 3),
+					wxGBSpan( 1, 1),
+					wxGROW);
 
 		sizer->Add( makeButton( panel,
 								"Start robot",
@@ -474,6 +480,12 @@ namespace Application
 								"Stop robot",
 								[this](wxCommandEvent& anEvent){this->OnStopRobot(anEvent);}),
 					wxGBPosition( 3, 2),
+					wxGBSpan( 1, 1),
+					wxGROW);
+		sizer->Add( makeButton( panel,
+								"Start both robots",
+								[this](wxCommandEvent& anEvent){this->OnStartBothRobots(anEvent);}),
+					wxGBPosition( 3, 3),
 					wxGBSpan( 1, 1),
 					wxGROW);
 		sizer->Add( makeButton( panel,
@@ -492,12 +504,6 @@ namespace Application
 								"Stop listening",
 								[this](wxCommandEvent& anEvent){this->OnStopListening(anEvent);}),
 					wxGBPosition( 5, 3),
-					wxGBSpan( 1, 1),
-					wxGROW);
-		sizer->Add( makeButton( panel,
-								"Sync worlds",
-								[this](wxCommandEvent& anEvent){this->OnSyncWorlds(anEvent);}),
-					wxGBPosition( 5, 4),
 					wxGBSpan( 1, 1),
 					wxGROW);
 		sizer->Add( makeButton( panel,
@@ -682,6 +688,28 @@ namespace Application
 		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot( "Robot");
 		if (robot && !robot->isActing())
 		{
+			robot->startActing();
+		}
+	}
+	/**
+	 *
+	 */
+	void MainFrameWindow::OnStopRobot( wxCommandEvent& UNUSEDPARAM(anEvent))
+	{
+		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot( "Robot");
+		if (robot && robot->isActing())
+		{
+			robot->stopActing();
+		}
+	}
+	/**
+	 *
+	 */
+	void MainFrameWindow::OnStartBothRobots( wxCommandEvent& UNUSEDPARAM(anEvent))
+	{
+		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot( "Robot");
+		if (robot && !robot->isActing())
+		{
 			std::string remoteIpAdres = "localhost";
 			std::string remotePort = "12345";
 
@@ -699,19 +727,6 @@ namespace Application
 									  robot);
 			Messaging::Message message( Messaging::StartRobotRequest, "");
 			c1ient.dispatchMessage( message);
-		}
-
-		
-	}
-	/**
-	 *
-	 */
-	void MainFrameWindow::OnStopRobot( wxCommandEvent& UNUSEDPARAM(anEvent))
-	{
-		Model::RobotPtr robot = Model::RobotWorld::getRobotWorld().getRobot( "Robot");
-		if (robot && robot->isActing())
-		{
-			robot->stopActing();
 		}
 	}
 	/**

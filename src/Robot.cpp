@@ -185,7 +185,6 @@ namespace Model
 	void Robot::startDriving()
 	{
 		driving = true;
-
 		goal = RobotWorld::getRobotWorld().getGoal( "Goal");
 		calculateRoute(goal);
 
@@ -515,7 +514,11 @@ namespace Model
 		fx = coordinates[2];
 		fy = coordinates[3];
 		const std::vector<RobotPtr>& robots = RobotWorld::getRobotWorld().getRobots();
-		RobotPtr robot = robots[1];
+		RobotPtr robot;
+		if (robots.size() > 1)
+		{
+			robot = robots[1];
+		}
 		if(!robot)
 		{
 			Application::Logger::log("Robot not found");
@@ -523,8 +526,13 @@ namespace Model
 		else
 		{
 			Application::Logger::log("Moving robot: " + robot->asString());
-			robot->setPosition(wxPoint(x, y));
-			robot->setFront(BoundedVector(fx, fy));
+			robot->setPosition(wxPoint(x, y), false);
+			robot->setFront(BoundedVector(fx, fy), false);
+
+			if (!driving)
+			{
+				robot->notifyObservers();
+			}
 		}
 	}
 	/**
@@ -540,13 +548,11 @@ namespace Model
 		std::string result;
 		std::istringstream robotStream(robotString);
 
-		int x, y, fx, fy;
+		int x, y;
 
 		std::vector<int> coordinates = getNumbersFromString(robotString);
 		x = coordinates[0];
 		y = coordinates[1];
-		fx = coordinates[2];
-		fy = coordinates[3];
 		RobotWorld::getRobotWorld().newRobot("Robot", wxPoint(x, y));
 	}
 	/**
@@ -577,9 +583,7 @@ namespace Model
 				break;
 			}
 			case Messaging::SyncWorldRequest:
-			{
-				Application::Logger::log("SyncWorldRequest!!!");
-				
+			{	
 				std::string syncmessage = aMessage.getBody();
 				std::string response = getWorldInfo();
 
@@ -793,9 +797,21 @@ namespace Model
 					Application::Logger::log(__PRETTY_FUNCTION__ + std::string(": arrived or collision"));
 					driving = false;
 					almostCollided = false;
+					worldSyncer = false;
 				}
 
 				notifyObservers();
+				const std::vector<RobotPtr>& robots = RobotWorld::getRobotWorld().getRobots();
+				RobotPtr remoteRobot;
+				if (robots.size() > 1)
+				{
+					remoteRobot = robots[1];
+				}
+				
+				if(remoteRobot)
+				{
+					remoteRobot->notifyObservers();
+				}
 
 				// If there is no sleep_for here the robot will immediately be on its destination....
 				std::this_thread::sleep_for( std::chrono::milliseconds( 100)); // @suppress("Avoid magic numbers")

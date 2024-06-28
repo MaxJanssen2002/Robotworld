@@ -12,6 +12,7 @@ namespace Model
 {
 	enum Scenarios
 	{
+		NO_SCENARIO,
 		S1_1,
 		S1_2,
 		S2_1,
@@ -151,6 +152,10 @@ namespace Model
 			 */
 			void createBorder();
 			/**
+			 * Removes all walls except those of the border
+			 */
+			void removeNonBorderWalls();
+			/**
 			 *
 			 */
 			std::string asCode() const;
@@ -193,6 +198,8 @@ namespace Model
 			mutable std::vector< WayPointPtr > wayPoints;
 			mutable std::vector< GoalPtr > goals;
 			mutable std::vector< WallPtr > walls;
+
+			Scenarios currentScenario = NO_SCENARIO;
 	};
 } // namespace Model
 #endif // ROBOTWORLD_HPP_

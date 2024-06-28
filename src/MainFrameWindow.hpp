@@ -108,6 +108,7 @@ namespace Application
 
 			void OnStartRobot( wxCommandEvent& anEvent);
 			void OnStopRobot( wxCommandEvent& anEvent);
+			void OnStartBothRobots( wxCommandEvent& anEvent);
 			void OnPopulate( wxCommandEvent& anEvent);
 			void OnUnpopulate( wxCommandEvent& anEvent);
 			void OnStartListening( wxCommandEvent& anEvent);
