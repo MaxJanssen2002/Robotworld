@@ -368,11 +368,11 @@ namespace Model
 			 */
 			bool communicating;
 			/**
-			 *
+			 * True if the robot is within a certain distance (determined by ROBOT_WARNING_DISTANCE) of another robot, false if not.
 			 */
 			bool almostCollided;
 			/**
-			 *
+			 * True if 'Sync world' has been pressed in the application before driving, false if not.
 			 */
 			bool worldSyncer;
 			/**
